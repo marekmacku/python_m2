@@ -20,7 +20,9 @@ def get_site_packages() -> list[str]:
             paths = list(site.getsitepackages())
         except Exception:
             paths = []
-    user_site: str = site.getusersitepackages() if hasattr(site, "getusersitepackages") else ""
+    user_site: str = ""
+    if hasattr(site, "getusersitepackages"):
+        user_site = site.getusersitepackages()
     if user_site and user_site not in paths:
         paths.append(user_site)
     return paths

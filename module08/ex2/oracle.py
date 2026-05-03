@@ -48,13 +48,15 @@ def main() -> int:
     mode: str = cfg["MATRIX_MODE"]
     db: str = cfg["DATABASE_URL"]
     api: str = cfg["API_KEY"]
-    db_kind: str = "local" if "localhost" in db or db.startswith("sqlite:") else "remote"
+    is_local: bool = "localhost" in db or db.startswith("sqlite:")
+    db_kind: str = "local" if is_local else "remote"
+    api_status: str = "Authenticated" if api else "Missing API_KEY"
 
     print("ORACLE STATUS: Reading the Matrix...\n")
     print("Configuration loaded:")
     print(f"  Mode: {mode}")
     print(f"  Database: Connected to {db_kind} instance")
-    print(f"  API Access: {'Authenticated' if api else 'Missing API_KEY'} (key: {mask(api)})")
+    print(f"  API Access: {api_status} (key: {mask(api)})")
     print(f"  Log Level: {cfg['LOG_LEVEL']}")
     print(f"  Zion Network: {cfg['ZION_ENDPOINT']}")
 
@@ -75,9 +77,13 @@ def main() -> int:
 
     print("\nEnvironment security check:")
     print("  [OK] No hardcoded secrets detected")
-    env_msg: str = "[OK] .env file properly configured" if env_loaded else "[WARN] No .env file"
+    if env_loaded:
+        env_msg: str = "[OK] .env file properly configured"
+    else:
+        env_msg = "[WARN] No .env file"
     print(f"  {env_msg}")
-    print(f"  [OK] Production overrides {'applied' if mode == 'production' else 'available'}")
+    overrides: str = "applied" if mode == "production" else "available"
+    print(f"  [OK] Production overrides {overrides}")
     print("\nThe Oracle sees all configurations.")
 
     return 1 if mode == "production" and issues else 0
